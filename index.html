@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verbatim Bureau | Enterprise Workspace</title>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Palette: Modern Zinc/Indigo */
+            --bg-body: #f8fafc;
+            --bg-sidebar: #09090b;
+            --bg-card: #ffffff;
+            --bg-hover: #f4f4f5;
+            --border-color: #e4e4e7;
+            
+            --text-main: #09090b;
+            --text-muted: #71717a;
+            --text-on-dark: #a1a1aa;
+            
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --primary-fg: #ffffff;
+            
+            --success: #10b981; --success-bg: #ecfdf5;
+            --warning: #f59e0b; --warning-bg: #fffbeb;
+            --danger: #ef4444;  --danger-bg: #fef2f2;
+            --info: #0ea5e9;    --info-bg: #f0f9ff;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #09090b;
+            --bg-sidebar: #000000;
+            --bg-card: #18181b;
+            --bg-hover: #27272a;
+            --border-color: #27272a;
+            
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --primary-light: rgba(79, 70, 229, 0.1);
+            --bg-hover: #27272a;
+            
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --warning-bg: rgba(245, 158, 11, 0.1);
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --info-bg: rgba(14, 165, 233, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            transition: background 0.3s;
+        }
+
+        /* --- LOGIN PAGE --- */
+        #login-view {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f8fafc 100%);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 500;
+        }
+        [data-theme="dark"] #login-view { background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #000000 100%); }
+
+        .login-card {
+            background: var(--bg-card); padding: 48px; border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg); border: 1px solid var(--border-color);
+            width: 100%; max-width: 420px; text-align: center;
+            animation: floatUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes floatUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .login-logo {
+            width: 64px; height: 64px; background: var(--primary); color: white;
+            border-radius: 18px; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 32px; margin-bottom: 24px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .input-group { text-align: left; margin-bottom: 16px; }
+        .input-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
+        .input-pretty {
+            width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color);
+            background: var(--bg-body); font-size: 0.95rem; outline: none; color: var(--text-main);
+            transition: all 0.2s;
+        }
+        .input-pretty:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); background: var(--bg-card); }
+
+        /* --- APP STRUCTURE --- */
+        #app-view { display: none; width: 100%; height: 100%; } 
+
+        aside {
+            width: 280px; background-color: var(--bg-sidebar); display: flex; flex-direction: column;
+            padding: 24px 16px; border-right: 1px solid #27272a; z-index: 20; flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 40px; padding: 0 12px;
+            color: #ffffff; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.5px;
+        }
+
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+        .nav-item {
+            padding: 12px 14px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+            color: var(--text-on-dark); font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
+        }
+        .nav-item:hover { background-color: rgba(255,255,255,0.08); color: #fff; }
+        .nav-item.active { background-color: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+        .team-section { margin-top: 40px; padding: 0 12px; }
+        .team-header { font-size: 0.75rem; text-transform: uppercase; color: #52525b; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px; }
+        .team-list { display: flex; flex-direction: column; gap: 12px; }
+        .team-member { display: flex; align-items: center; gap: 10px; color: #a1a1aa; font-size: 0.9rem; }
+        .member-avatar { width: 24px; height: 24px; border-radius: 50%; background: #27272a; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600; color: white; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #27272a; margin-left: auto; }
+        .status-online { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+
+        /* --- MAIN AREA --- */
+        main {
+            flex: 1; padding: 32px 48px; overflow-y: auto; display: flex; flex-direction: column; gap: 32px;
+            background: var(--bg-body);
+        }
+
+        header { display: flex; justify-content: space-between; align-items: flex-end; }
+        .page-title h1 { font-size: 2rem; font-weight: 700; margin-bottom: 4px; letter-spacing: -1px; color: var(--text-main); }
+        .page-title p { color: var(--text-muted); font-size: 1rem; }
+
+        /* --- CARDS & STATS --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+        .stat-card {
+            background: var(--bg-card); padding: 24px; border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
+            display: flex; flex-direction: column; justify-content: space-between; height: 160px;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 16px;
+        }
+        .bg-gradient-blue { background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); color: #0284c7; }
+        .bg-gradient-green { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); color: #16a34a; }
+        .bg-gradient-orange { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #d97706; }
+        .bg-gradient-purple { background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); color: #9333ea; }
+
+        /* --- CHART & FEED --- */
+        .dashboard-split { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px; }
+        .content-card {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color); padding: 24px; box-shadow: var(--shadow-sm);
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-title { font-weight: 600; font-size: 1.1rem; }
+
+        .activity-item { display: flex; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 16px; }
+        .activity-item:last-child { border: none; margin: 0; padding: 0; }
+        .activity-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-hover); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--text-muted); }
+        .activity-content div { font-size: 0.9rem; font-weight: 500; color: var(--text-main); }
+        .activity-content span { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* --- TABLE --- */
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 16px 24px; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; border-bottom: 1px solid var(--border-color); background: var(--bg-body); }
+        td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); vertical-align: middle; font-size: 0.95rem; }
+        tr:hover td { background-color: var(--bg-hover); cursor: pointer; }
+        
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .st-open { background: var(--success-bg); color: var(--success); }
+        .st-progress { background: var(--info-bg); color: var(--info); }
+        .st-review { background: var(--warning-bg); color: var(--warning); }
+        .st-closed { background: var(--bg-hover); color: var(--text-muted); }
+        .st-urgent { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
+
+        /* --- WORKROOM --- */
+        .workroom-overlay {
+            position: fixed; top: 0; right: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
+            z-index: 100; display: none; justify-content: flex-end;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .workroom-panel {
+            width: 900px; height: 100%; background: var(--bg-card);
+            box-shadow: -10px 0 40px rgba(0,0,0,0.15);
+            transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column;
+        }
+        .workroom-overlay.open { opacity: 1; }
+        .workroom-overlay.open .workroom-panel { transform: translateX(0); }
+
+        /* Stepper */
+        .stepper { display: flex; justify-content: space-between; margin: 20px 0; padding: 0 20px; position: relative; }
+        .stepper::before { content: ''; position: absolute; top: 14px; left: 40px; right: 40px; height: 2px; background: var(--border-color); z-index: 0; }
+        .step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .step-circle { width: 30px; height: 30px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); transition: all 0.3s; }
+        .step.active .step-circle { background: var(--primary); border-color: var(--primary); color: white; }
+        .step.completed .step-circle { background: var(--success); border-color: var(--success); color: white; }
+        .step-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        .step.active .step-label { color: var(--primary); }
+
+        /* Chat */
+        .chat-area { flex: 1; background: var(--bg-body); padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+        .msg { max-width: 75%; padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; line-height: 1.5; box-shadow: var(--shadow-sm); position: relative; }
+        .msg-in { background: var(--bg-card); color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg-out { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg-meta { font-size: 0.7rem; margin-top: 4px; opacity: 0.7; }
+
+        /* Wallet */
+        .wallet-banner {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: white; border-radius: var(--radius-lg); padding: 32px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: var(--shadow-lg); position: relative; overflow: hidden;
+        }
+        .wallet-banner::after {
+            content: ""; position: absolute; top: -50px; right: -50px; width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%); border-radius: 50%;
+        }
+
+        /* Buttons */
+        .btn { border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 0.9rem; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-outline:hover { background: var(--bg-hover); }
+
+        /* Chart SVG */
+        .chart-svg { width: 100%; height: 200px; }
+        .chart-path { fill: url(#gradient); stroke: var(--primary); stroke-width: 3; }
+
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .dashboard-split { grid-template-columns: 1fr; }
+            .workroom-panel { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-view">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="ph-fill ph-scroll"></i>
+            </div>
+            <h1 style="margin-bottom: 8px; font-weight: 800; font-size: 1.8rem; color: var(--text-main); letter-spacing: -0.5px;">Verbatim Bureau</h1>
+            <p style="color: var(--text-muted); margin-bottom: 32px;">Secure Enterprise Workspace</p>
+
+            <div class="input-group">
+                <label class="input-label">Username</label>
+                <input type="text" id="loginName" class="input-pretty" placeholder="e.g. Dandy" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Password</label>
+                <input type="password" id="loginPass" class="input-pretty" placeholder="••••••••" autocomplete="off" onkeypress="if(event.key === 'Enter') enterApp()">
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; margin-top: 16px;" onclick="enterApp()">
+                Authenticate <i class="ph-bold ph-arrow-right"></i>
+            </button>
+            
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-muted);">
+                Authorized Personnel Only • v5.2 Managerial Suite
+            </div>
+        </div>
+    </div>
+
+    <!-- APP CONTAINER -->
+    <div id="app-view">
+        <!-- SIDEBAR -->
+        <aside>
+            <div class="brand">
+                <i class="ph-fill ph-scroll" style="color: #818cf8;"></i> VERBATIM
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="nav('dashboard')">
+                    <i class="ph ph-squares-four"></i> Dashboard
+                </li>
+                <li class="nav-item" onclick="nav('pool')">
+                    <i class="ph ph-globe"></i> Global Pool
+                </li>
+                <li class="nav-item" onclick="nav('active')">
+                    <i class="ph ph-briefcase"></i> Workroom
+                </li>
+                <li class="nav-item" id="nav-team" onclick="nav('team')" style="display:none;">
+                    <i class="ph ph-users"></i> Team
+                </li>
+                <li class="nav-item" onclick="nav('finances')">
+                    <i class="ph ph-wallet"></i> Finances
+                </li>
+            </ul>
+
+            <div class="team-section">
+                <div class="team-header">Team Status</div>
+                <div class="team-list">
+                    <div class="team-member">
+                        <div class="member-avatar" style="background: #4f46e5;">D</div>
+                        Dandy (Manager)
+                        <div class="status-dot status-online"></div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar" style="background: #0ea5e9;">F</div>
+                        Feivel
+                        <div class="status-dot" id="dot-feivel"></div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar" style="background: #f59e0b;">A</div>
+                        Arkan
+                        <div class="status-dot" id="dot-arkan"></div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar" style="background: #10b981;">J</div>
+                        Jerry
+                        <div class="status-dot" id="dot-jerry"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #27272a;">
+                <button class="btn btn-outline" style="width: 100%; border-color: #3f3f46; color: #a1a1aa; justify-content: center; background: rgba(255,255,255,0.05);" onclick="logout()">
+                    <i class="ph ph-sign-out"></i> Sign Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main>
+            <!-- DASHBOARD VIEW -->
+            <div id="view-dashboard" class="view-section">
+                <header>
+                    <div class="page-title">
+                        <h1 id="dashTitle">Executive Overview</h1>
+                        <p id="dashSub">Performance metrics and active bureau status.</p>
+                    </div>
+                    <button class="btn btn-primary" id="createOrderBtn" onclick="openModal()">
+                        <i class="ph ph-plus"></i> New Project
+                    </button>
+                </header>
+
+                <div class="stats-grid" style="margin-top: 32px;" id="managerStats">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-gradient-blue"><i class="ph ph-wallet"></i></div>
+                        <div>
+                            <div class="stat-val" style="font-size: 1.6rem;">Rp 68.000.000</div>
+                            <div class="stat-label">Total Volume (IDR)</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-gradient-green"><i class="ph ph-trend-up"></i></div>
+                        <div>
+                            <div class="stat-val" style="font-size: 1.6rem;">Rp 20.400.000</div>
+                            <div class="stat-label">Net Profit (30%)</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-gradient-orange"><i class="ph ph-lightning"></i></div>
+                        <div>
+                            <div class="stat-val" id="activeCount">0</div>
+                            <div class="stat-label">Active Jobs</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-gradient-purple"><i class="ph ph-users-three"></i></div>
+                        <div>
+                            <div class="stat-val">4</div>
+                            <div class="stat-label">Team Members</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-split">
+                    <!-- Area Chart -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-title">Revenue Trend (IDR)</div>
+                            <select style="border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 6px; background: var(--bg-body);">
+                                <option>This Week</option>
+                            </select>
+                        </div>
+                        <svg class="chart-svg" viewBox="0 0 500 150" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+                                    <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.2"/>
+                                    <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- Mock Data Path -->
+                            <path d="M0,120 Q50,100 100,110 T200,80 T300,60 T400,90 T500,40 V150 H0 Z" class="chart-path" />
+                        </svg>
+                    </div>
+
+                    <!-- Top Performers (Dynamic) -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <div class="card-title">Top Performers</div>
+                        </div>
+                        <div id="performersList">
+                            <!-- JS Injected -->
+                            <div class="activity-item">
+                                <div class="activity-icon" style="background: #e0f2fe; color: #0284c7;">F</div>
+                                <div class="activity-content" style="flex: 1;">
+                                    <div>Feivel</div>
+                                    <span>-- Jobs Completed</span>
+                                </div>
+                                <div style="font-weight: 600; color: var(--success);">Rp 0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GLOBAL POOL -->
+            <div id="view-pool" class="view-section" style="display: none;">
+                <header style="margin-bottom: 24px;">
+                    <div class="page-title">
+                        <h1>Global Job Pool</h1>
+                        <p>Open orders available for claim.</p>
+                    </div>
+                </header>
+                
+                <div class="content-card" style="padding: 0; overflow: hidden;">
+                    <table id="poolTable">
+                        <thead>
+                            <tr>
+                                <th>Project Details</th>
+                                <th>Type</th>
+                                <th>Deadline</th>
+                                <th>Payout (IDR)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- JS Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ACTIVE WORKROOM LIST -->
+            <div id="view-active" class="view-section" style="display: none;">
+                <header style="margin-bottom: 24px;">
+                    <div class="page-title">
+                        <h1>Active Workrooms</h1>
+                        <p>Manage ongoing production.</p>
+                    </div>
+                </header>
+
+                <div class="content-card" style="padding: 0; overflow: hidden;">
+                    <table id="activeTable">
+                        <thead>
+                            <tr>
+                                <th>Project</th>
+                                <th>Assigned To</th>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- JS Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- TEAM VIEW (New) -->
+            <div id="view-team" class="view-section" style="display: none;">
+                <header style="margin-bottom: 24px;">
+                    <div class="page-title">
+                        <h1>Team Management</h1>
+                        <p>Worker performance and payout status.</p>
+                    </div>
+                </header>
+                <div class="content-card" style="padding: 0; overflow: hidden;">
+                    <table id="teamTable">
+                        <thead>
+                            <tr>
+                                <th>Worker</th>
+                                <th>Active Tasks</th>
+                                <th>Total Earnings (IDR)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- JS Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- FINANCES VIEW -->
+            <div id="view-finances" class="view-section" style="display: none;">
+                <header style="margin-bottom: 24px;">
+                    <div class="page-title">
+                        <h1>Financial Command</h1>
+                        <p>Transaction ledger and withdrawal processing.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="alert('Withdrawal processed to Bank BCA.')"><i class="ph ph-bank"></i> Withdraw Funds</button>
+                </header>
+
+                <div class="wallet-banner">
+                    <div>
+                        <div style="opacity: 0.8; margin-bottom: 8px;">TOTAL AVAILABLE BALANCE</div>
+                        <div style="font-size: 2.5rem; font-weight: 700;">Rp 24.500.000</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="opacity: 0.8; margin-bottom: 4px;">BANK BCA</div>
+                        <div style="font-family: monospace; font-size: 1.1rem;">**** 8821</div>
+                    </div>
+                </div>
+
+                <div class="content-card" style="margin-top: 32px; padding: 0; overflow: hidden;">
+                    <div style="padding: 20px; border-bottom: 1px solid var(--border-color); font-weight: 600;">Transaction History</div>
+                    <table id="financeTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Reference</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Today, 14:20</td>
+                                <td>Client Payment - Job #1042</td>
+                                <td>TRX-99281</td>
+                                <td style="color: var(--success); font-weight: 600;">+ Rp 1.500.000</td>
+                            </tr>
+                            <tr>
+                                <td>Yesterday</td>
+                                <td>Worker Payout - Feivel</td>
+                                <td>PAY-1123</td>
+                                <td style="color: var(--text-muted);">- Rp 1.050.000</td>
+                            </tr>
+                            <tr>
+                                <td>Jan 02, 2026</td>
+                                <td>Withdrawal to BCA</td>
+                                <td>WD-0021</td>
+                                <td style="color: var(--text-muted);">- Rp 5.000.000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- WORKROOM SLIDEOVER -->
+    <div class="workroom-overlay" id="workroom">
+        <div class="workroom-panel">
+            <div class="wr-header" style="background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 20px 32px;">
+                <div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 1px;">PROJECT WORKROOM</div>
+                    <h2 id="wrTitle" style="font-size: 1.5rem; font-weight: 700;">Loading...</h2>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-outline" onclick="closeWorkroom()">Close</button>
+                    <button class="btn btn-primary" id="wrMainAction">Complete Action</button>
+                </div>
+            </div>
+
+            <!-- STATUS STEPPER -->
+            <div style="background: var(--bg-body); border-bottom: 1px solid var(--border-color);">
+                <div class="stepper">
+                    <div class="step" id="step-open">
+                        <div class="step-circle"><i class="ph-bold ph-check"></i></div>
+                        <div class="step-label">Open</div>
+                    </div>
+                    <div class="step" id="step-progress">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">In Progress</div>
+                    </div>
+                    <div class="step" id="step-review">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Review</div>
+                    </div>
+                    <div class="step" id="step-complete">
+                        <div class="step-circle"><i class="ph-bold ph-flag"></i></div>
+                        <div class="step-label">Complete</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex: 1; display: flex; overflow: hidden;">
+                <!-- Chat & Activity -->
+                <div class="chat-area" id="chatArea">
+                    <!-- Messages Injected Here -->
+                </div>
+                
+                <!-- Right Info Panel -->
+                <div style="width: 300px; background: var(--bg-card); border-left: 1px solid var(--border-color); padding: 24px; display: flex; flex-direction: column;">
+                    <h4 style="margin-bottom: 16px;">Details</h4>
+                    <div style="margin-bottom: 24px;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">PAYOUT</div>
+                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--success);"><span id="wrPay">0</span></div>
+                    </div>
+                    <div style="margin-bottom: 24px;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">FILES</div>
+                        <button class="btn btn-outline" style="width: 100%; justify-content: center; font-size: 0.8rem;"><i class="ph ph-upload"></i> Upload Deliverable</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding: 16px 32px; background: var(--bg-card); border-top: 1px solid var(--border-color); display: flex; gap: 12px;">
+                <input type="text" id="chatInput" class="input-pretty" placeholder="Type a message..." style="margin: 0;" onkeypress="if(event.key === 'Enter') sendMessage()">
+                <button class="btn btn-primary" onclick="sendMessage()"><i class="ph-bold ph-paper-plane-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE JOB -->
+    <div id="jobModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
+        <div class="content-card" style="width: 450px; box-shadow: var(--shadow-lg);">
+            <h2 style="margin-bottom: 20px;">New Project Order</h2>
+            <div class="input-group">
+                <label class="input-label">Project Title</label>
+                <input type="text" id="newJobTitle" class="input-pretty" placeholder="e.g. Psychology 101 Essay">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="input-group">
+                    <label class="input-label">Type</label>
+                    <select id="newJobType" class="input-pretty">
+                        <option value="Essay">Essay</option>
+                        <option value="Code">Coding</option>
+                        <option value="Design">Design</option>
+                        <option value="Editing">Editing</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Priority</label>
+                    <select id="newJobPriority" class="input-pretty">
+                        <option value="Normal">Normal</option>
+                        <option value="High">High Priority</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Client Price (IDR)</label>
+                <input type="number" id="newJobPay" class="input-pretty" placeholder="500000">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-outline" onclick="document.getElementById('jobModal').style.display='none'">Cancel</button>
+                <button class="btn btn-primary" onclick="createJob()">Create Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOASTS -->
+    <div id="toastContainer" style="position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 1000;"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- FIREBASE INIT ---
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        let allJobs = [];
+        
+        // --- AUTH ---
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) setupListener();
+        });
+
+        function setupListener() {
+            const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'jobs'));
+            onSnapshot(q, (snapshot) => {
+                allJobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allJobs.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                
+                refreshUI();
+                
+                // Update specific job if open
+                if(window.currentJobId) {
+                    const job = allJobs.find(j => j.id === window.currentJobId);
+                    if(job) updateWorkroomUI(job);
+                }
+            });
+        }
+
+        // --- GLOBAL STATE ---
+        window.role = null; 
+        window.userName = "";
+        window.currentJobId = null;
+
+        const CREDENTIALS = {
+            "dandy": { pass: "1111", role: "manager" },
+            "feivel": { pass: "2222", role: "worker" },
+            "arkan": { pass: "3333", role: "worker" },
+            "jerry": { pass: "4444", role: "worker" }
+        };
+
+        const TEAM_MEMBERS = ["Feivel", "Arkan", "Jerry"];
+
+        // --- CORE FUNCTIONS ---
+        window.formatIDR = function(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        window.enterApp = function() {
+            const nameKey = document.getElementById('loginName').value.trim().toLowerCase();
+            const passInput = document.getElementById('loginPass').value.trim();
+            const user = CREDENTIALS[nameKey];
+
+            if (user && user.pass === passInput) {
+                window.userName = nameKey.charAt(0).toUpperCase() + nameKey.slice(1);
+                window.role = user.role;
+                
+                // Animation
+                const login = document.getElementById('login-view');
+                login.style.opacity = '0';
+                setTimeout(() => {
+                    login.style.display = 'none';
+                    document.getElementById('app-view').style.display = 'flex';
+                    updateRoleUI();
+                    
+                    // Mark self as online in UI
+                    document.querySelectorAll('.status-dot').forEach(d => d.className = 'status-dot');
+                    const myDot = document.getElementById(`dot-${nameKey}`);
+                    if(myDot) myDot.className = 'status-dot status-online';
+                    
+                }, 400);
+            } else {
+                showToast("Invalid credentials", "error");
+            }
+        }
+
+        window.logout = function() {
+            window.location.reload();
+        }
+
+        function updateRoleUI() {
+            const roleDisplay = document.getElementById('roleDisplay');
+            if (roleDisplay) roleDisplay.innerText = window.userName;
+            
+            const dashTitle = document.getElementById('dashTitle');
+            const dashSub = document.getElementById('dashSub');
+            const createBtn = document.getElementById('createOrderBtn');
+            const managerStats = document.getElementById('managerStats');
+            const navTeam = document.getElementById('nav-team');
+
+            if(window.role === 'manager') {
+                if(dashTitle) dashTitle.innerText = `Good Afternoon, ${window.userName}`;
+                if(dashSub) dashSub.innerText = "Executive Overview & Bureau Performance";
+                if(createBtn) createBtn.style.display = 'flex';
+                if(managerStats) managerStats.style.display = 'grid';
+                if(navTeam) navTeam.style.display = 'flex';
+            } else {
+                if(dashTitle) dashTitle.innerText = `Hello, ${window.userName}`;
+                if(dashSub) dashSub.innerText = "Your Workspace & Active Tasks";
+                if(createBtn) createBtn.style.display = 'none';
+                if(managerStats) managerStats.style.display = 'none';
+                if(navTeam) navTeam.style.display = 'none';
+            }
+            refreshUI();
+            nav('dashboard');
+        }
+
+        function refreshUI() {
+            const activeCountEl = document.getElementById('activeCount');
+            const activeCount = allJobs.filter(j => j.status !== 'Open' && j.status !== 'Completed').length;
+            if(activeCountEl) activeCountEl.innerText = activeCount;
+            
+            renderPool();
+            renderActive();
+            if(window.role === 'manager') renderTeam();
+            renderTopPerformers();
+        }
+
+        // --- RENDER TABLES ---
+        function renderPool() {
+            const tbody = document.querySelector('#poolTable tbody');
+            tbody.innerHTML = '';
+            const pool = allJobs.filter(j => j.status === 'Open');
+            
+            if(pool.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--text-muted);">No open jobs available.</td></tr>`;
+                return;
+            }
+
+            pool.forEach(job => {
+                const tr = document.createElement('tr');
+                const clientPrice = job.pay;
+                const workerPrice = Math.round(job.pay * 0.7);
+                const priorityBadge = job.priority === 'High' ? '<span class="status-badge st-urgent">Urgent</span>' : '';
+                
+                const payDisplay = window.role === 'manager' 
+                    ? `${formatIDR(clientPrice)} <span style="font-size:0.75rem; color:var(--text-muted);">Client</span>` 
+                    : `<span style="color:var(--success); font-weight:700;">${formatIDR(workerPrice)}</span>`;
+                
+                const btn = window.role === 'manager' 
+                    ? `<button class="btn btn-outline" style="padding:6px 12px; font-size:0.75rem;">Edit</button>`
+                    : `<button class="btn btn-primary" style="padding:6px 12px; font-size:0.75rem;" onclick="claimJob('${job.id}')">Claim</button>`;
+
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight:600;">${job.title}</div>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <span style="font-size:0.75rem; color:var(--text-muted);">${job.id.substring(0,6)}</span>
+                            ${priorityBadge}
+                        </div>
+                    </td>
+                    <td><span class="status-badge st-closed">${job.type}</span></td>
+                    <td>${job.deadline || '3 days'}</td>
+                    <td>${payDisplay}</td>
+                    <td>${btn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderActive() {
+            const tbody = document.querySelector('#activeTable tbody');
+            tbody.innerHTML = '';
+            const active = allJobs.filter(j => j.status !== 'Open');
+
+            active.forEach(job => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => openWorkroom(job.id);
+                
+                let badge = 'st-progress';
+                if(job.status === 'In Review') badge = 'st-review';
+                if(job.status === 'Completed') badge = 'st-open';
+
+                tr.innerHTML = `
+                    <td><div style="font-weight:600;">${job.title}</div></td>
+                    <td>${job.worker}</td>
+                    <td><span class="status-badge ${badge}">${job.status}</span></td>
+                    <td>${job.deadline || 'Soon'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- NEW: TEAM ANALYTICS ---
+        function renderTeam() {
+            const tbody = document.querySelector('#teamTable tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            TEAM_MEMBERS.forEach(member => {
+                const memberJobs = allJobs.filter(j => j.worker === member);
+                const active = memberJobs.filter(j => j.status !== 'Completed').length;
+                const earnings = memberJobs
+                    .filter(j => j.status === 'Completed')
+                    .reduce((sum, j) => sum + (j.pay * 0.7), 0);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div class="member-avatar" style="background:#4f46e5;">${member.charAt(0)}</div>
+                            <div style="font-weight:600;">${member}</div>
+                        </div>
+                    </td>
+                    <td><span style="font-weight:600;">${active}</span></td>
+                    <td style="color:var(--success); font-weight:700;">${formatIDR(earnings)}</td>
+                    <td><span class="status-badge st-open">Active</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderTopPerformers() {
+            const container = document.getElementById('performersList');
+            if(!container) return;
+            container.innerHTML = '';
+
+            // Calculate stats dynamically
+            const stats = TEAM_MEMBERS.map(member => {
+                const completed = allJobs.filter(j => j.worker === member && j.status === 'Completed');
+                const total = completed.reduce((sum, j) => sum + (j.pay * 0.7), 0);
+                return { name: member, count: completed.length, total: total };
+            }).sort((a,b) => b.total - a.total); // Sort by earnings
+
+            stats.forEach(stat => {
+                const div = document.createElement('div');
+                div.className = 'activity-item';
+                div.innerHTML = `
+                    <div class="activity-icon" style="background: var(--info-bg); color: var(--info);">${stat.name.charAt(0)}</div>
+                    <div class="activity-content" style="flex: 1;">
+                        <div>${stat.name}</div>
+                        <span>${stat.count} Jobs Completed</span>
+                    </div>
+                    <div style="font-weight: 600; color: var(--success);">${formatIDR(stat.total)}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // --- WORKROOM & STEPPER ---
+        window.openWorkroom = function(id) {
+            window.currentJobId = id;
+            const job = allJobs.find(j => j.id === id);
+            const overlay = document.getElementById('workroom');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.classList.add('open'), 10);
+            updateWorkroomUI(job);
+        }
+
+        function updateWorkroomUI(job) {
+            document.getElementById('wrTitle').innerText = job.title;
+            const payout = window.role === 'manager' ? job.pay : Math.round(job.pay * 0.7);
+            document.getElementById('wrPay').innerText = formatIDR(payout);
+            
+            // Stepper Logic
+            const steps = ['Open', 'In Progress', 'In Review', 'Completed'];
+            const currentIdx = steps.indexOf(job.status);
+            
+            document.querySelectorAll('.step').forEach((el, idx) => {
+                el.className = 'step'; // Reset
+                if (idx < currentIdx) el.classList.add('completed');
+                if (idx === currentIdx) el.classList.add('active');
+            });
+
+            // Chat
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = '';
+            (job.chat || []).forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `msg ${msg.role === window.role ? 'msg-out' : 'msg-in'}`;
+                div.innerHTML = `<div>${msg.text}</div><div class="msg-meta">${msg.sender} • Now</div>`;
+                chatArea.appendChild(div);
+            });
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // Action Button Logic
+            const btn = document.getElementById('wrMainAction');
+            if (window.role === 'manager') {
+                if(job.status === 'In Review') {
+                    btn.innerText = "Approve & Pay";
+                    btn.onclick = () => updateStatus('Completed');
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            } else {
+                if(job.status === 'In Progress') {
+                    btn.innerText = "Submit for Review";
+                    btn.style.display = 'block';
+                    btn.onclick = () => updateStatus('In Review');
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        }
+
+        window.updateStatus = async function(status) {
+            if(!window.currentJobId) return;
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'jobs', window.currentJobId), { status: status });
+                showToast(`Project updated to ${status}`, "success");
+                window.closeWorkroom();
+            } catch(e) { console.error(e); }
+        }
+
+        window.sendMessage = async function() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if(!text || !window.currentJobId) return;
+            
+            const job = allJobs.find(j => j.id === window.currentJobId);
+            const newMsg = { role: window.role, text: text, sender: window.userName };
+            const chat = [...(job.chat || []), newMsg];
+            
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'jobs', window.currentJobId), { chat: chat });
+            input.value = "";
+        }
+
+        window.claimJob = async function(id) {
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'jobs', id), {
+                    status: 'In Progress',
+                    worker: window.userName
+                });
+                showToast("Job Claimed", "success");
+                nav('active');
+            } catch(e) { console.error(e); }
+        }
+
+        window.createJob = async function() {
+            const title = document.getElementById('newJobTitle').value;
+            const type = document.getElementById('newJobType').value;
+            const priority = document.getElementById('newJobPriority').value;
+            const pay = parseInt(document.getElementById('newJobPay').value);
+            
+            if(!title || !pay) return;
+            
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'jobs'), {
+                title, type, pay, priority, status: 'Open', worker: 'Unassigned', createdAt: Date.now(), chat: []
+            });
+            document.getElementById('jobModal').style.display = 'none';
+            showToast("Order Created", "success");
+        }
+
+        // --- HELPERS ---
+        window.nav = function(view) {
+            document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            const map = { 'dashboard': 0, 'pool': 1, 'active': 2, 'team': 3, 'finances': 4 };
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            // Safety check for array index
+            if(navItems[map[view]]) {
+                navItems[map[view]].classList.add('active');
+            }
+            
+            const viewEl = document.getElementById(`view-${view}`);
+            if(viewEl) viewEl.style.display = 'block';
+            
+            if(view === 'pool') renderPool();
+            if(view === 'active') renderActive();
+            if(view === 'team') renderTeam();
+        }
+
+        window.closeWorkroom = function() {
+            const overlay = document.getElementById('workroom');
+            overlay.classList.remove('open');
+            setTimeout(() => overlay.style.display = 'none', 400);
+            window.currentJobId = null;
+        }
+
+        window.openModal = function() { document.getElementById('jobModal').style.display = 'flex'; }
+        
+        window.showToast = function(msg, type) {
+            const div = document.createElement('div');
+            div.style.background = 'var(--bg-card)';
+            div.style.padding = '12px 20px';
+            div.style.borderRadius = '8px';
+            div.style.boxShadow = 'var(--shadow-lg)';
+            div.style.borderLeft = `4px solid var(--${type === 'error' ? 'danger' : 'success'})`;
+            div.innerText = msg;
+            document.getElementById('toastContainer').appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
