@@ -674,20 +674,33 @@
         import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- FIREBASE INIT ---
-        const firebaseConfig = JSON.parse(__firebase_config);
+        
+        // Your specific configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvcLek66HEgNhK00azxmE3F80BIppqZG4",
+            authDomain: "verbatim-bureau.firebaseapp.com",
+            projectId: "verbatim-bureau",
+            storageBucket: "verbatim-bureau.firebasestorage.app",
+            messagingSenderId: "568108181664",
+            appId: "1:568108181664:web:c7e47abca78dafef5241c5",
+            measurementId: "G-MRC3PT5QHX"
+        };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const appId = "verbatim-bureau-app"; // Fixed ID for your app
         
         let allJobs = [];
         
         // --- AUTH ---
         const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
+            try {
+                // Anonymous auth for custom project config
                 await signInAnonymously(auth);
+            } catch (error) {
+                console.error("Authentication Error:", error);
+                showToast("Auth Error: Enable Anonymous Sign-in in Firebase Console", "error");
             }
         };
         initAuth();
