@@ -215,7 +215,9 @@
             <p style="color: var(--text-muted); margin-bottom: 24px;">Financial & Productivity Suite v12.0</p>
             <input type="text" id="loginName" class="input-pretty" placeholder="Username" autocomplete="off">
             <input type="password" id="loginPass" class="input-pretty" placeholder="Password" onkeypress="if(event.key==='Enter') enterApp()">
-            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="enterApp()">Authenticate</button>
+            <button class="btn btn-primary" id="loginBtn" style="width: 100%; justify-content: center; padding: 14px; margin-top: 16px;" onclick="enterApp()" disabled>
+                System Connecting... <i class="ph-bold ph-spinner ph-spin"></i>
+            </button>
         </div>
     </div>
 
@@ -675,6 +677,8 @@
                 onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'users')), (snap) => {
                     systemUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     if(systemUsers.length === 0) seedUsers();
+                    const btn = document.getElementById('loginBtn');
+                    if(btn) { btn.disabled = false; btn.innerHTML = 'Authenticate'; }
                     renderTeam();
                     updatePayoutDropdown();
                     renderUserList();
@@ -1091,6 +1095,7 @@
             // Build table from systemUsers
             document.querySelector('#teamTable tbody').innerHTML = systemUsers.filter(u => u.role === 'worker').map(user => {
                 const name = user.username.charAt(0).toUpperCase() + user.username.slice(1);
+                // Calculate earnings
                 const earnings = allJobs.filter(j => j.worker === name && j.status === 'Completed').reduce((a,b) => a + (b.pay * 0.7), 0);
                 const active = allJobs.filter(j => j.worker === name && j.status !== 'Completed').length;
                 const bio = user.bio || "No status";
