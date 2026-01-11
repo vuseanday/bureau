@@ -620,9 +620,20 @@
 
         // CONFIG
         let firebaseConfig;
-        // ... (Config logic is unchanged, but ensuring apiKey placeholder is clearly marked if copied)
-        if (typeof __firebase_config !== 'undefined') firebaseConfig = JSON.parse(__firebase_config);
-        else firebaseConfig = { apiKey: "AIzaSyDvcLek66HEgNhK00azxmE3F80BIppqZG4", projectId: "verbatim-bureau", appId: "1:568108181664:web:c7e47abca78dafef5241c5" }; 
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            // Your real keys restored here:
+            firebaseConfig = {
+                apiKey: "AIzaSyDvcLek66HEgNhK00azxmE3F80BIppqZG4",
+                authDomain: "verbatim-bureau.firebaseapp.com",
+                projectId: "verbatim-bureau",
+                storageBucket: "verbatim-bureau.firebasestorage.app",
+                messagingSenderId: "568108181664",
+                appId: "1:568108181664:web:c7e47abca78dafef5241c5",
+                measurementId: "G-MRC3PT5QHX"
+            };
+        }
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
